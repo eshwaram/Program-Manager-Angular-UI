@@ -1,0 +1,154 @@
+<div class="container-fluid">
+    <form (ngSubmit)="onSubmit()" #f="ngForm">
+        <div class="form-group">
+            <div class="row">
+                <label for="projName" class="col-md-2 text-middle font-weight-bold">Project Name:</label>
+                <input type="text" class="col-md-5 form-control form-control-sm" id="projName" name="projName"
+                    style="background-color:gainsboro" ngModel required #projName="ngModel"
+                    [(ngModel)]="project.projName">
+                <span class="help-block text-danger text-center ml-2" *ngIf="!projName.valid && projName.touched">Please
+                    provide Project name</span>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-2"></div>
+                <div class="checkbox">
+                    <input type="checkbox" class="mx-1" name="setDate" [(ngModel)]="enableDate" (click)="setDates()">Set
+                    Start and End Date
+                </div>
+                <div class="col-md-2">
+                    <input [type]="dateType" [disabled]="datesDisabled" class="form-control" id="startDate"
+                        name="startDate" [readonly]="notAllowDates" (change)="onDateChange()"
+                        style="background-color:gainsboro" [(ngModel)]="project.startDate" required
+                        placeholder="Start Date">
+                </div>
+                <div class="col-md-2">
+                    <input [type]="dateType" [disabled]="datesDisabled" class="form-control" id="endDate" name="endDate"
+                        style="background-color:gainsboro" (change)="onDateChange()" [readonly]="notAllowDates"
+                        [(ngModel)]="project.endDate" required placeholder="End Date">
+                </div>
+                <span class="help-block text-danger text-center ml-2" *ngIf="!datesValid">Start Date cannot be after End
+                    Date</span>
+            </div>
+            <div class="row mt-3">
+                <label for="priority" class="col-md-2 font-weight-bold">Priority:</label>
+                <div class="col-md-9" id="priority_range">
+                    <span>1</span>
+                    <input id="priority" class="custom-range col-md-5 mx-2" step="1" name="priority" type="range"
+                        value="1" ngModel required #priority="ngModel" [(ngModel)]="project.priority" min="1" max="30"
+                        oninput>
+                    <span>30</span>
+                    <p class="text-secondary font-weight-bold">Selected Priority: {{project.priority}}</p>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <label for="manager" class="col-md-2 text-middle font-weight-bold">Manager:</label>
+                <input type="text" class="col-md-3 form-control form-control-sm" id="manager" name="manager"
+                    style="background-color:gainsboro" ngModel readonly required #manager="ngModel"
+                    [(ngModel)]=searchItem>
+                <button class="btn btn-outline-primary mx-2" type="button" (click)="openModal()">Search</button>
+                <span class="help-block text-danger text-center ml-2" *ngIf="!manager.valid && manager.touched">Please
+                    provide manager</span>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-5"><span class="text-success font-weight-bold"
+                        *ngIf="successMessage">{{successMessage}}</span><span class="text-danger font-weight-bold"
+                        *ngIf="failureMessage">{{failureMessage}}</span></div>
+                <button class="btn btn-success mr-2 col-md-1 mb-1" type="submit" [disabled]="!(f.valid && datesValid)"
+                    [ngStyle]="{'display':display}" (click)="onAdd()">Add</button>
+                <button class="btn btn-info col-md-1" (click)="onReset()" [ngStyle]="{'display':display}">Reset</button>
+                <button class="btn btn-info col-md-1" (click)="onUpdate()" [ngStyle]="{'display':displayUpdate}"
+                    [disabled]="!(f.valid && datesValid)">Update</button>
+                <div class="col-md-5"></div>
+            </div>
+        </div>
+    </form>
+
+    <hr class="style13" />
+
+    <div class="row">
+        <div class="col-md-2 text-center font-weight-bold text-primary">
+            Sort By:
+        </div>
+        <div class="col-md-8">
+            <button class="btn btn-outline-secondary mx-3" type="button" (click)="sortByStartDate()">
+                Start Date
+            </button>
+            <button class="btn btn-outline-secondary mx-3" type="button" (click)="sortByEndDate()">End Date</button>
+            <button class="btn btn-outline-secondary mx-3" type="button" (click)="sortByPriority()">Priority</button>
+            <button class="btn btn-outline-secondary mx-3" type="button"
+                (click)="sortByCompletedTasks()">Completed</button>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+
+    <hr class="style2" />
+    <div id="userList" *ngFor="let project of retrievedProjects">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="bg-light"><b>Project:</b> {{project.projName}}</div>
+                <div class="bg-light"><b>No of Tasks:</b> {{project.noOfTasks}}</div>
+                <div class="bg-light"><b>Start Date:</b> {{project.startDate}}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="bg-light"> </div>
+                <br>
+                <div class="bg-light"><b>Completed:</b> {{project.noOfCompTasks}}</div>
+                <div class="bg-light"><b>End Date:</b> {{project.endDate}}</div>
+            </div>
+            <div class="col-md-2">
+                <div class="bg-light"> </div>
+                <br>
+                <div class="bg-light text-center"><b>Priority</b></div>
+                <div class="bg-light text-center">{{project.priority}}</div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <button class="btn btn-warning col-md-4 mb-1" type="button"
+                        (click)="onEditProject(project)">Update</button>
+                </div>
+                <div class="row">
+                    <button class="btn btn-danger col-md-4" type="button" (click)="onSuspend(project)">Suspend</button>
+                </div>
+            </div>
+        </div>
+        <hr class="style2" />
+    </div>
+
+    <div class="modal" id="userSearch" [ngStyle]="{'display':displayModal}">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">User Search</h5>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <p>Please select anyone of the user below</p>
+                        <div class="form-group">
+                            <input type="text" placeholder="Search..." class="col-md-9 form-control" id="searchItem"
+                                name="searchItem" style="background-color:gainsboro" [(ngModel)]="searchItem">
+                        </div>
+                        <div class="list-group">
+                            <li class="list-group-item"
+                                *ngFor="let user of retrievedUsers | filterUser:searchItem:'fName':'lName'">
+                                <a href="#" (click)="selectedUser(user, $event)">{{user.fName}} {{user.lName}}</a>
+                            </li>
+                        </div>
+                    </form>
+                </div>
+                <div>
+                    <p>
+                        <span class="text-left text-primary font-weight-bold ml-4">Selected User Name:
+                        </span>{{user.fName}} {{user.lName}}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" (click)="select()" data-dismiss="modal"
+                        [disabled]="!user.fName">Select</button>
+                    <button type="button" class="btn btn-danger" (click)="closeModal()"
+                        data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,70 @@
+<div class="container-fluid">
+    <form (ngSubmit)="onSubmit()" #f="ngForm">
+        <div class="form-group">
+            <div class="row">
+                <label for="fName" class="col-md-2 text-middle">First Name:</label>
+                <input type="text" class="col-md-5 form-control form-control-sm" id="fName" name="fName"
+                    style="background-color:gainsboro" required ngModel #fName="ngModel" [(ngModel)]="user.fName">
+                <span class="help-block text-danger text-center ml-2" *ngIf="!fName.valid && fName.touched">Please
+                    provide First name</span>
+            </div>
+            <div class="row mt-2">
+                <label for="lName" class="col-md-2 text-middle">Last Name:</label>
+                <input type="text" class="col-md-5 form-control form-control-sm" id="lName" name="lName"
+                    style="background-color:gainsboro" ngModel required #lName="ngModel" [(ngModel)]="user.lName">
+                <span class="help-block text-danger text-center ml-2" *ngIf="!lName.valid && lName.touched">Please
+                    provide Last name</span>
+            </div>
+            <div class="row mt-2">
+                <label for="empID" class="col-md-2 text-middle">Employee ID:</label>
+                <input type="text" class="col-md-3 form-control form-control-sm" id="empID" name="empID"
+                    style="background-color:gainsboro" ngModel required #empID="ngModel" [(ngModel)]="user.empID">
+                <span class="help-block text-danger text-center ml-2" *ngIf="!empID.valid && empID.touched">Please
+                    provide Employee ID</span>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-5"><span class="text-success font-weight-bold" *ngIf="successMessage">{{successMessage}}</span><span class="text-danger font-weight-bold" *ngIf="failureMessage">{{failureMessage}}</span></div>
+                <button class="btn btn-success mr-2 col-md-1 mb-1" type="submit" [disabled]="!f.valid" [ngStyle]="{'display':display}" (click)="onAdd(user)">Add</button>
+                <button class="btn btn-info col-md-1" (click)="onReset()" [ngStyle]="{'display':display}">Reset</button>
+                <button class="btn btn-info col-md-1" (click)="onUpdate(user)" [ngStyle]="{'display':displayUpdate}">Update</button>
+                <div class="col-md-5"></div>
+            </div>
+        </div>
+    </form>
+
+    <hr class="style13" />
+    <div class="row">
+        <div class="col-md-2">
+            <input type="text" class="form-control form-control-sm" id="searchItem" name="searchItem"
+                    style="background-color:gainsboro" placeholder="Search by Name..." [(ngModel)]="searchItem">
+        </div>
+        <div class="col-md-8">
+            <button class="btn btn-outline-secondary mx-3" type="button" (click)="sortByFirstName()">
+                First Name
+            </button>
+            <button class="btn btn-outline-secondary mx-3" type="button" (click)="sortByLastName()">Last
+                Name</button>
+            <button class="btn btn-outline-secondary mx-3" type="button" (click)="sortByEmpId()">ID</button>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+    <hr class="style2" />
+    <div id="userList" *ngFor="let user of retrievedUsers | filterUser:searchItem:'fName':'lName'">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="bg-light my-1">{{user.fName}}</div>
+                <div class="bg-light my-1">{{user.lName}}</div>
+                <div class="bg-light my-1">{{user.empID}}</div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <button class="btn btn-warning col-md-4 mb-1" type="button" (click)="onEditUser(user)">Edit</button>
+                </div>
+                <div class="row">
+                    <button class="btn btn-danger col-md-4" type="button" (click)="onDelete(user)">Delete</button>
+                </div>
+            </div>
+        </div>
+        <hr class="style2" />
+    </div>
+</div>

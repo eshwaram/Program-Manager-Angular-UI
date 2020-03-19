@@ -1,0 +1,109 @@
+<div class="container-fluid">
+    <form #f="ngForm">
+        <div class="form-group">
+            <div class="row">
+                <label for="projectInput" class="col-md-2 text-middle font-weight-bold">Project:</label>
+                <input type="text" class="col-md-3 form-control form-control-sm" id="projectInput" name="projectInput"
+                    style="background-color:gainsboro" readonly ngModel #projectInput="ngModel"
+                    [(ngModel)]="searchProjItem">
+            </div>
+            <div class="row mt-2">
+                <label for="taskInput" class="col-md-2 text-middle font-weight-bold">Task:</label>
+                <input type="text" class="col-md-5 form-control form-control-sm" id="taskInput" name="taskInput"
+                    style="background-color:gainsboro" ngModel required #taskInput="ngModel"
+                    [(ngModel)]="task.taskName">
+            </div>
+            <div>
+                <div class="row mt-2">
+                    <label for="priority" class="col-md-2 font-weight-bold">Priority:</label>
+                    <div class="col-md-9" id="priority_range">
+                        <span>1</span>
+                        <input id="priority" class="custom-range col-md-5 mx-2" step="1" name="priority" type="range"
+                            value="1" ngModel #priority="ngModel" min="1" max="30" required oninput
+                            [(ngModel)]="task.priority">
+                        <span>30</span>
+                        <p class="text-secondary font-weight-bold">Selected Priority: {{task.priority}}</p>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <label for="parentTask" class="col-md-2 text-middle font-weight-bold">Parent Task:</label>
+                    <input type="text" class="col-md-3 form-control form-control-sm" id="parentTask" name="parentTask"
+                        style="background-color:gainsboro" ngModel #parentTask="ngModel" readonly
+                        [(ngModel)]="searchPTaskItem">
+                    <button class="btn btn-outline-primary mx-2 btn-sm" type="button"
+                        (click)="openParentTaskModal()">Search</button>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-2 font-weight-bold">Start Date:</div>
+                    <div>
+                        <input type="date" class="form-control" id="startDate" name="startDate"
+                            style="background-color:gainsboro" (change)="onDateChange()" required
+                            placeholder="Start Date" [(ngModel)]="task.startDate">
+                    </div>
+                    <div class="col-md-1 text-right font-weight-bold">End Date:</div>
+                    <div>
+                        <input type="date" class="form-control" id="endDate" name="endDate"
+                            style="background-color:gainsboro" required (change)="onDateChange()" placeholder="End Date"
+                            [(ngModel)]="task.endDate">
+                    </div>
+                    <span class="help-block text-danger text-center ml-2" *ngIf="!datesValid">Start Date cannot be after
+                        End Date</span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <label for="user" class="col-md-2 text-middle font-weight-bold">User:</label>
+                <input type="text" class="col-md-3 form-control form-control-sm" id="user" name="user"
+                    style="background-color:gainsboro" required ngModel #user="ngModel" [(ngModel)]=searchUserItem
+                    readonly>
+            </div>
+            <div class="row mt-2">
+                <span class="text-secondary font-weight-bold" *ngIf="status">{{status}}</span>
+                <div class="col-md-5"><span class="text-success font-weight-bold"
+                        *ngIf="successMessage">{{successMessage}}</span><span class="text-danger font-weight-bold"
+                        *ngIf="failureMessage">{{failureMessage}}</span></div>
+                <button class="btn btn-success mr-2 col-md-1" type="submit" [disabled]="!f.valid || !datesValid"
+                    (click)="onUpdate()">Update</button>
+                <button class="btn btn-info col-md-1" routerLink="/tasks">Cancel</button>
+                <div class="col-md-5"></div>
+            </div>
+        </div>
+    </form>
+
+    <div class="modal" id="pTaskSearch" [ngStyle]="{'display':displayPTaskModal}">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Parent Task Search</h5>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <p>Please select anyone of the task below</p>
+                        <div class="form-group">
+                            <input type="text" placeholder="Search..." class="col-md-9 form-control"
+                                id="searchPTaskItem" name="searchPTaskItem" style="background-color:gainsboro"
+                                [(ngModel)]="searchPTaskItem">
+                        </div>
+                        <div class="list-group">
+                            <li class="list-group-item"
+                                *ngFor="let pTask of retrievedPTasks | filterPTask:searchPTaskItem:'taskName'">
+                                <a href="#" (click)="selectedPTask(pTask, $event)">{{pTask.taskName}}</a>
+                            </li>
+                        </div>
+                    </form>
+                </div>
+                <div>
+                    <p>
+                        <span class="text-left text-primary font-weight-bold ml-4">Selected Parent Task Name:
+                        </span>{{pTaskSelected.taskName}}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" (click)="selectPTaskModal()" data-dismiss="modal"
+                        [disabled]="!pTaskSelected.taskName">Select</button>
+                    <button type="button" class="btn btn-danger" (click)="closePTaskModal()"
+                        data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

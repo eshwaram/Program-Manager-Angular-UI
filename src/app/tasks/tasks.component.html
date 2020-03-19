@@ -1,0 +1,130 @@
+<div class="container-fluid">
+    <div class="row">
+        <label for="projName" class="text-middle font-weight-bold mx-3">Project Name:</label>
+        <input type="text" class="col-md-2 form-control form-control-sm" id="projName" name="projName"
+            style="background-color:gainsboro" readonly ngModel required #projName="ngModel" [(ngModel)]="searchItem">
+        <button class="btn btn-outline-primary btn-sm mx-2" type="button" (click)="openProjectModal()">Search</button>
+        <div class="col-md-1 text-center font-weight-bold text-primary">
+            Sort By:
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-outline-secondary mx-1" type="button" (click)="sortByStartDate()">
+                Start Date
+            </button>
+            <button class="btn btn-outline-secondary mx-1" type="button" (click)="sortByEndDate()">End Date</button>
+            <button class="btn btn-outline-secondary mx-1" type="button" (click)="sortByPriority()">Priority</button>
+        </div>
+    </div>
+    <hr class="style13" />
+    <div class="row">
+        <div class="col-lg-12 text-center font-weight-bold">
+            <span class="text-danger font-weight-bold" *ngIf="tasksfailureMessage">{{tasksfailureMessage}}</span>
+            <span class="text-success font-weight-bold"
+                *ngIf="endTasksuccessMessage">{{endTasksuccessMessage}}</span><span class="text-danger font-weight-bold"
+                *ngIf="endTaskfailureMessage">{{endTaskfailureMessage}}</span>
+        </div>
+    </div>
+    <div id="taskList" *ngFor="let task of retrievedTasks">
+        <div class="row">
+            <div class="col-md-2 text-center"><span class="font-weight-bold">Task</span><br><span
+                    class="bg-light">{{task.taskName}}</span></div>
+            <div class="col-md-2 text-center"><span class="font-weight-bold">Parent</span><br>
+                <span class="bg-light" *ngIf="task.parentTaskID === 0">This Task has no Parent Task</span>
+                <span class="bg-light" *ngIf="task.parentTaskID != 0">Parent Task {{task.parentTaskID}}</span>
+
+            </div>
+            <div class="col-md-1 text-center"><span class="font-weight-bold">Priority</span><br><span
+                    class="bg-light">{{task.priority}}</span>
+            </div>
+            <div class="col-md-1 text-center"><span class="font-weight-bold">Start Date</span><br><span
+                    class="bg-light">{{task.startDate}}</span></div>
+            <div class="col-md-1 text-center"><span class="font-weight-bold">End Date</span><br><span
+                    class="bg-light">{{task.endDate}}</span></div>
+            <div class="col-md-4">
+                <button class="btn btn-warning col-md-4 my-1" type="button" *ngIf="task.status === 0" routerLink="/editTask/{{task.taskID}}/{{task.userID}}/{{task.projID}}/{{task.parentTaskID}}">Edit</button>
+                <br>
+                <button class="btn btn-danger col-md-4 my-1" type="button" *ngIf="task.status === 0"
+                    (click)="onEndTask(task)">End Task</button>
+            </div>
+            <br>
+        </div>
+        <hr class="style13" />
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 text-center font-weight-bold">
+            <span class="text-success font-weight-bold"
+                *ngIf="endPTasksuccessMessage">{{endPTasksuccessMessage}}</span><span
+                class="text-danger font-weight-bold" *ngIf="endPTaskfailureMessage">{{endPTaskfailureMessage}}</span>
+        </div>
+    </div>
+    <div id="taskList" *ngFor="let ptask of retrievedPTasks">
+        <div class="row">
+            <div class="col-lg-12 text-info text-center font-weight-bold">
+                PARENT TASKS
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-2 text-center"><span class="font-weight-bold">Task</span><br><span
+                    class="bg-light">{{ptask.taskName}}</span></div>
+            <div class="col-md-2 text-center"><span class="font-weight-bold">Parent</span><br>
+                <span class="bg-light">This task is a Parent Task</span>
+            </div>
+            <div class="col-md-1 text-center"><span class="font-weight-bold">Priority</span><br><span
+                    class="bg-light">Parent Task doesn't have priority</span>
+            </div>
+            <div class="col-md-1 text-center"><span class="font-weight-bold">Start Date</span><br><span
+                    class="bg-light">Parent Task doesn't have start date</span></div>
+            <div class="col-md-1 text-center"><span class="font-weight-bold">End Date</span><br><span
+                    class="bg-light">Parent Task doesn't have end date</span></div>
+            <div class="col-md-4">
+                <button class="btn btn-danger col-md-4 my-1" type="button" *ngIf="ptask.status === 0"
+                    (click)="onEndPTask(ptask)">End Task</button>
+            </div>
+            <br>
+        </div>
+        <hr class="style6" />
+    </div>
+
+
+
+    <div class="modal" id="projectSearch" [ngStyle]="{'display':display}">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Project Search</h5>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <p>Please select anyone of the project below</p>
+                        <div class="form-group">
+                            <input type="text" placeholder="Search..." class="col-md-9 form-control" id="searchItem"
+                                name="searchItem" style="background-color:gainsboro" [(ngModel)]="searchItem">
+                        </div>
+                        <span class="text-danger font-weight-bold"
+                            *ngIf="projectsfailureMessage">{{projectsfailureMessage}}</span>
+                        <div class="list-group">
+                            <li class="list-group-item"
+                                *ngFor="let project of retrievedProjects | filterProject:searchItem:'projName'">
+                                <a href="#" (click)="selectedProject(project, $event)">{{project.projName}}</a>
+                            </li>
+                        </div>
+                    </form>
+                </div>
+                <div>
+                    <p>
+                        <span class="text-left text-primary font-weight-bold ml-4">Selected Project Name:
+                        </span>{{project.projName}}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" (click)="select()" data-dismiss="modal"
+                        [disabled]="!project.projName">Select</button>
+                    <button type="button" class="btn btn-danger" (click)="closeModal()"
+                        data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
